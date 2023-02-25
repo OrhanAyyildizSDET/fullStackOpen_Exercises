@@ -59,7 +59,7 @@ const App = ()=>{
         : notes.filter(note => note.important)
 
     const toggleImportanceOf = (id) => {
-        const url = `http://localhost:3001/notes/${id}`
+        const url = `http://localhost:3001/api/notes/${id}`
         const note = notes.find(x => x.id === id)
         const changedNote = { ...note, important: !note.important }
       
@@ -70,6 +70,7 @@ const App = ()=>{
             alert(
               `the note '${note.content}' was already deleted from server`
             )
+            console.log(error)
             setNotes(notes.filter(n => n.id !== id))
           })
     
@@ -96,5 +97,4 @@ const App = ()=>{
         </>
     )
 }
-
 export default App

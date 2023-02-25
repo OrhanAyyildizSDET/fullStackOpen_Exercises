@@ -3,6 +3,7 @@ const app = express()
 app.use(express.json())
 const cors = require('cors')
 app.use(cors())
+app.use(express.static('assets'))
 
 let notes = [
   {
@@ -18,6 +19,11 @@ let notes = [
   {
     id: 3,
     content: "GET and POST are the most important methods of HTTP protocol",
+    important: true
+  },
+  {
+    id: 4,
+    content: "Merge with frontend and backend",
     important: true
   }
 ]
