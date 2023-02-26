@@ -24,13 +24,15 @@ const App = ()=>{
     console.log(result,notes.filter(note=>note.id===3))
 
     useEffect (() => {       
-      if(!notes.length) 
-        noteServices.getAll()
-        .then(response => {          
-            setNotes(notes.concat(response))
-        })
-      },[])
-          
+      noteServices.getAll()
+      .then(response => {          
+          setNotes(notes.concat(response))
+      })
+      .catch(error=>{
+        console.log(error)
+      })
+    },[])
+        
     const addNote = (event) => {
         event.preventDefault()
         console.log('button clicked', event.target)
@@ -43,8 +45,7 @@ const App = ()=>{
         noteServices
         .create(noteObject)
         .then(response => {
-            console.log(response.data)
-            setNotes(notes.concat(response.data))
+            setNotes(notes.concat(response))
             setNewNote('Please Enter a New Note...')            
         })        
     }   
@@ -59,12 +60,11 @@ const App = ()=>{
         : notes.filter(note => note.important)
 
     const toggleImportanceOf = (id) => {
-        const url = `http://localhost:3001/api/notes/${id}`
         const note = notes.find(x => x.id === id)
         const changedNote = { ...note, important: !note.important }
       
         noteServices.update(id, changedNote).then(response => {
-          setNotes(notes.map(x => x.id !== id ? x : response.data))
+          setNotes(notes.map(x => x.id !== id ? x : response))
         })
         .catch(error => {
             alert(
@@ -72,29 +72,39 @@ const App = ()=>{
             )
             console.log(error)
             setNotes(notes.filter(n => n.id !== id))
-          })
-    
+          })    
     }
 
-    return(
-        <>
-            <h1>Notes</h1>
-            <div >            
-                {notesToShow.map(note => 
-                    <Note  key={note.id} note={note} 
-                    toggleImportance={() => toggleImportanceOf(note.id)}/>
-                )}               
-                <button onClick={() => setShowAll(!showAll)}>
-                    show {showAll ? 'important' : 'all' }
-                </button>
-                <p>----------------------------------------------------</p>
-                <form onSubmit={addNote}>
-                    <input value={newNote} onChange={handleNoteChange}/>
-                    <button type="submit">save</button>
-                </form> 
-                <Footer/>
-            </div>
-        </>
-    )
+    const deleteNote = (id) => {
+      noteServices.deleteNote(id).then(response=>{
+        setNotes(notes.filter(note => note.id !== id))
+      })
+    }
+
+    if(notes.length)
+      return(
+          <>
+              <h1>Notes</h1>
+              <div >            
+                  {notesToShow.map(note => 
+                      <Note  key={note.id} note={note} 
+                      toggleImportance={() => toggleImportanceOf(note.id)}
+                      id = {() => deleteNote(note.id)}
+                      />
+                  )}               
+                  <button onClick={() => setShowAll(!showAll)}>
+                      show {showAll ? 'important' : 'all' }
+                  </button>
+                  <p>----------------------------------------------------</p>
+                  <form onSubmit={addNote}>
+                      <input value={newNote} onChange={handleNoteChange}/>
+                      <button type="submit">save</button>
+                  </form>
+                  <Footer/>
+              </div>
+          </>
+      )
+    else
+      return (<p>Loading.....</p>)
 }
 export default App
